@@ -51,12 +51,16 @@ public class Philosopher implements Runnable{
 			while (true) {
 				mutex.acquire();
 				
+				System.out.println("Philosopher " + idPhilo + " is picking up the left fork");
 				fork.get(idPhilo).sem.acquire();
+				System.out.println("Philosopher " + idPhilo + " is picking up the right fork");
 				fork.get((idPhilo + 1) % 5).sem.acquire();
 				
 				mutex.release();
 				eat();
 				
+				System.out.println("Philosopher " + idPhilo + " is putting down the left fork");
+				System.out.println("Philosopher " + idPhilo + " is putting down the right fork");
 				fork.get(idPhilo).sem.release();
 				fork.get((idPhilo + 1) % 5).sem.release();
 				
