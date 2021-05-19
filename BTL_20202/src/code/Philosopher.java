@@ -6,14 +6,15 @@ package code;
 import java.util.Random;
 
 public class Philosopher implements Runnable{
-	private final int MAX_FORK = 5;
+	final int MAX_FORK = 5;
 	private int idPhilo;
 	static Fork[] fork;
-	static Fork mutex = new Fork();
+	static Fork mutex;
 	
 	public Philosopher(int id) {
 		this.idPhilo = id;
 		fork = new Fork[MAX_FORK];
+		mutex = new Fork();
 	}
 	public int getIdPhilo() {
 		return idPhilo;
@@ -23,9 +24,9 @@ public class Philosopher implements Runnable{
 		this.idPhilo = idPhilo;
 	}	
 	
-	synchronized void eat() {
+	void eat() {
 		Random rand = new Random();
-		int time = rand.nextInt(2000) + 1;
+		int time = rand.nextInt(200) + 100;
 		try {
 			System.out.println("Philosopher " + this.idPhilo + " is eating...");
 			Thread.sleep(time);
@@ -34,13 +35,15 @@ public class Philosopher implements Runnable{
 			return;
 		}
 	}
-	synchronized void think() {
+	void think() {
 		Random rand = new Random();
-		int time = rand.nextInt(2000) + 1;
+		int time = rand.nextInt(200) + 100;
 		try {
 			System.out.println("Philosopher " + this.idPhilo + " is thinking...");
 			Thread.sleep(time);
 		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
 		}
 	}
 	@Override
@@ -48,21 +51,21 @@ public class Philosopher implements Runnable{
 		while (true) {
 			mutex.waitt();
 			
-			System.out.println("Philosopher " + idPhilo + " is picking up the left fork");
 			fork[idPhilo].waitt();
-			System.out.println("Philosopher " + idPhilo + " is picking up the right fork");
+			System.out.println("Philosopher " + idPhilo + " is picking up the left fork");
 			fork[(idPhilo + 1) % 5].waitt();
+			System.out.println("Philosopher " + idPhilo + " is picking up the right fork");
 			
 			mutex.signal();
 			eat();
 			
-			System.out.println("Philosopher " + idPhilo + " is putting down the left fork");
+		
 			fork[idPhilo].signal();
-			System.out.println("Philosopher " + idPhilo + " is putting down the right fork");
+			System.out.println("Philosopher " + idPhilo + " is putting down the left fork");
 			fork[(idPhilo + 1) % 5].signal();
+			System.out.println("Philosopher " + idPhilo + " is putting down the right fork");
 			
 			think();
-			
 		}
 		
 	}
