@@ -1,20 +1,23 @@
 package code;
-import java.util.concurrent.Semaphore;
+//import java.util.concurrent.Semaphore;
 
 public class Fork{
-	private int idFork;
-	Semaphore sem = new Semaphore(1);
+	private int value;
+	private int id;
 	
+	public Fork(int i) {
+		this.id = i;
+		this.value = 1;
+	}
+	public Fork() {
+		this.value = 1;
+	}
+	void waitt() {
+		while (this.value <= 0);
+		this.value--;
+	}
 	
-	public Fork(int id) {
-		this.setIdFork(id);
-	}
-
-	public int getIdFork() {
-		return idFork;
-	}
-
-	public void setIdFork(int idFork) {
-		this.idFork = idFork;
+	void signal() {
+		this.value++;
 	}
 }

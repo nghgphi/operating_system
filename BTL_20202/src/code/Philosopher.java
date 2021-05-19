@@ -1,18 +1,19 @@
 package code;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Semaphore;
+//import java.util.ArrayList;
+//import java.util.List;
+//import java.util.concurrent.Semaphore;
 import java.util.Random;
 
 public class Philosopher implements Runnable{
+	private final int MAX_FORK = 5;
 	private int idPhilo;
-	static List<Fork> fork;
-	static Semaphore mutex = new Semaphore(1);
+	static Fork[] fork;
+	static Fork mutex = new Fork();
 	
 	public Philosopher(int id) {
 		this.idPhilo = id;
-		fork = new ArrayList<Fork>();
+		fork = new Fork[MAX_FORK];
 	}
 	public int getIdPhilo() {
 		return idPhilo;
@@ -22,7 +23,7 @@ public class Philosopher implements Runnable{
 		this.idPhilo = idPhilo;
 	}	
 	
-	void eat() {
+	synchronized void eat() {
 		Random rand = new Random();
 		int time = rand.nextInt(2000) + 1;
 		try {
@@ -33,43 +34,35 @@ public class Philosopher implements Runnable{
 			return;
 		}
 	}
-	void think() {
+	synchronized void think() {
 		Random rand = new Random();
 		int time = rand.nextInt(2000) + 1;
 		try {
 			System.out.println("Philosopher " + this.idPhilo + " is thinking...");
 			Thread.sleep(time);
 		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			return;
 		}
 	}
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-		try {
-			while (true) {
-				mutex.acquire();
-				
-				System.out.println("Philosopher " + idPhilo + " is picking up the left fork");
-				fork.get(idPhilo).sem.acquire();
-				System.out.println("Philosopher " + idPhilo + " is picking up the right fork");
-				fork.get((idPhilo + 1) % 5).sem.acquire();
-				
-				mutex.release();
-				eat();
-				
-				System.out.println("Philosopher " + idPhilo + " is putting down the left fork");
-				System.out.println("Philosopher " + idPhilo + " is putting down the right fork");
-				fork.get(idPhilo).sem.release();
-				fork.get((idPhilo + 1) % 5).sem.release();
-				
-				think();
-				
-			}
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			return;
+		while (true) {
+			mutex.waitt();
+			
+			System.out.println("Philosopher " + idPhilo + " is picking up the left fork");
+			fork[idPhilo].waitt();
+			System.out.println("Philosopher " + idPhilo + " is picking up the right fork");
+			fork[(idPhilo + 1) % 5].waitt();
+			
+			mutex.signal();
+			eat();
+			
+			System.out.println("Philosopher " + idPhilo + " is putting down the left fork");
+			fork[idPhilo].signal();
+			System.out.println("Philosopher " + idPhilo + " is putting down the right fork");
+			fork[(idPhilo + 1) % 5].signal();
+			
+			think();
+			
 		}
 		
 	}

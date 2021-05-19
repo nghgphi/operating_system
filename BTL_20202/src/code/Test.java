@@ -8,7 +8,7 @@ public class Test{
 		Philosopher philosopher_5 = new Philosopher(4);
 		
 		for (int i = 0; i < 5; i++) {
-			Philosopher.fork.add(new Fork(i));
+			Philosopher.fork[i] = new Fork(i);
 		}
 		
 		Thread thread_1 = new Thread(philosopher_1);
